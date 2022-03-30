@@ -9,13 +9,91 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id Int @id @default(autoincrement())
-  fistname String?
-  lastname String?
-  username String
-  country String? @default("Albania")
-  profilePic String? @default("https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500")
-  email String
-  password String
+  id               Int               @id @default(autoincrement())
+  firstname        String?
+  lastname         String?
+  username         String
+  country          String?           @default("Albania")
+  profilePic       String?           @default("https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500")
+  email            String
+  password         String
+  topics           Topic[]
+  shows            Show[]
+  episodes         Episode[]
+  episodePlaylists EpisodePlaylist[]
+  showPlaylists    ShowPlaylist[]
+  myLikedShows     myLikedShows[]
+  myLikedEpisodes  myLikedEpisodes[]
+}
+
+model Topic {
+  id    Int    @id @default(autoincrement())
+  name  String
+  shows Show[]
+  users User[]
+}
+
+model Show {
+  id            Int            @id @default(autoincrement())
+  topic         Topic          @relation(fields: [topicId], references: [id])
+  topicId       Int
+  title         String
+  mediaProvider String?
+  episode       Episode[]
+  users         User[]
+  showPlaylists ShowPlaylist[]
+  myLikedShows  myLikedShows[]
+}
+
+model Episode {
+  id               Int               @id @default(autoincrement())
+  show             Show              @relation(fields: [showId], references: [id])
+  showId           Int
+  numberOfEpisode  Int
+  title            String
+  author           String
+  description      String?
+  url              String
+  dateAdded        String
+  length           Int?
+  numberOfLikes    Int
+  numberOfDislikes Int
+  episodePlaylists EpisodePlaylist[]
+  myLikedEpisodes  myLikedEpisodes[]
+  User             User?             @relation(fields: [userId], references: [id])
+  userId           Int?
+}
+
+model ShowPlaylist {
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
+  shows  Show[]
+  title  String
+}
+
+model EpisodePlaylist {
+  id       Int       @id @default(autoincrement())
+  user     User      @relation(fields: [userId], references: [id])
+  userId   Int
+  episodes Episode[]
+  title    String
+}
+
+model myLikedShows {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  show   Show @relation(fields: [showId], references: [id])
+  showId Int
+}
+
+model myLikedEpisodes {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  episode   Episode @relation(fields: [episodeId], references: [id])
+  episodeId Int
 }
