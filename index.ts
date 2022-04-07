@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 const PORT = 4000;
 const prisma = new PrismaClient();
 
@@ -83,6 +84,35 @@ app.post("/login", async (req, res) => {
   } else {
     res.status(400).send({ error: "user not found" });
   }
+});
+app.get("/episodes", async (req, res) => {
+  const episodes = await prisma.episode.findMany();
+  res.send(episodes);
+});
+app.post("/episodes", async (req, res) => {
+  const newEpisode = await prisma.episode.create({
+    data: {
+      showId: req.body.showId,
+      numberOfEpisode: req.body.numberOfEpisode,
+      title: req.body.title,
+      author: req.body.author,
+      description: req.body.description,
+      url: req.body.url,
+      dateAdded: req.body.dateAdded,
+      length: req.body.length,
+      numberOfLikes: req.body.numberOfLikes,
+      numberOfDislikes: req.body.numberOfDislikes,
+    },
+  });
+  res.send(newEpisode);
+});
+app.patch("/episodes/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const episode = await prisma.episode.update({
+    where: { id },
+    data: { url: req.body.url },
+  });
+  res.send(episode);
 });
 app.listen(PORT, () => {
   console.log(`Server is listening at http://localhost:${PORT}`);
